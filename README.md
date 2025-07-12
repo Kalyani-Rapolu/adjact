@@ -1,4 +1,13 @@
 # Employee Directory Web Interface
+# 🧑‍💼 AJACKUS Employee Directory Web Interface
+
+A responsive and interactive Employee Directory built using **HTML**, **CSS**, **Vanilla JavaScript**, and **Freemarker templates**.  
+This project demonstrates UI design, interactivity, client-side logic, and front-end data handling — with no backend API involved.
+
+---
+
+## 📁 Project Structure
+
 
 ## Setup
 
@@ -25,3 +34,14 @@
 ## Author
 
 Your Name
+
+---
+
+### ✅ After adding `README.md`:
+
+Run these Git commands:
+
+```bash
+git add README.md
+git commit -m "Add README file for assignment"
+git push
