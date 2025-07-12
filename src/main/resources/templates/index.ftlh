@@ -8,6 +8,27 @@
 </head>
 <body>
   <h1>Employee Directory</h1>
+<!-- Search + Filter + Sort UI -->
+<div class="controls">
+  <input type="text" id="searchInput" placeholder="Search by name or email" />
+
+  <select id="sortSelect">
+    <option value="">Sort By</option>
+    <option value="firstName">First Name</option>
+    <option value="department">Department</option>
+  </select>
+
+  <button id="filterToggle">Filters</button>
+
+  <!-- Filter Panel -->
+  <div id="filterPanel" style="display: none;">
+    <input type="text" id="filterFirstName" placeholder="Filter First Name" />
+    <input type="text" id="filterDepartment" placeholder="Filter Department" />
+    <input type="text" id="filterRole" placeholder="Filter Role" />
+    <button id="applyFilterBtn">Apply Filter</button>
+    <button id="clearFilterBtn">Clear Filter</button>
+  </div>
+</div>
 
   <div>
     <input type="text" id="searchInput" placeholder="Search by name or email" />
@@ -34,6 +55,8 @@
         <p>Role: ${employee.role}</p>
         <button onclick="editEmployee(${employee.id})">Edit</button>
         <button onclick="deleteEmployee(${employee.id})">Delete</button>
+        <button onclick="window.location.href='form.ftlh'">Add New Employee</button>
+
       </div>
     </#list>
   </div>
