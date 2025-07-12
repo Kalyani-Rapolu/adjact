@@ -1,16 +1,28 @@
 document.addEventListener("DOMContentLoaded", () => {
   let currentEmployees = [...mockEmployees];
+  let filteredEmployees = [...mockEmployees];
+  let currentPage = 1;
+  let itemsPerPage = 10;
+
+  const searchInput = document.getElementById("searchInput");
+  const sortSelect = document.getElementById("sortSelect");
+  const itemsPerPageSelect = document.getElementById("itemsPerPage");
+  const pageInfo = document.getElementById("pageInfo");
 
   function renderEmployees(list) {
     const container = document.getElementById("employee-list-container");
     container.innerHTML = "";
 
-    if (list.length === 0) {
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const paginatedList = list.slice(start, end);
+
+    if (paginatedList.length === 0) {
       container.innerHTML = "<p>No employees found.</p>";
       return;
     }
 
-    list.forEach(emp => {
+    paginatedList.forEach(emp => {
       const div = document.createElement("div");
       div.className = "employee-card";
       div.innerHTML = `
@@ -25,6 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
       container.appendChild(div);
     });
 
+    pageInfo.textContent = `Page ${currentPage} of ${Math.ceil(filteredEmployees.length / itemsPerPage)}`;
     attachButtonHandlers();
   }
 
@@ -60,48 +73,60 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function applyFilters() {
-    const searchVal = document.getElementById("searchInput").value.toLowerCase();
-    const sortBy = document.getElementById("sortSelect").value;
-
+    const searchVal = searchInput.value.toLowerCase();
+    const sortBy = sortSelect.value;
     const filterFirst = document.getElementById("filterFirstName").value.toLowerCase();
     const filterDept = document.getElementById("filterDepartment").value.toLowerCase();
     const filterRole = document.getElementById("filterRole").value.toLowerCase();
 
-    let result = [...mockEmployees];
-
-    // Search
-    if (searchVal) {
-      result = result.filter(emp =>
-        emp.firstName.toLowerCase().includes(searchVal) ||
-        emp.lastName.toLowerCase().includes(searchVal) ||
-        emp.email.toLowerCase().includes(searchVal)
+    filteredEmployees = mockEmployees.filter(emp => {
+      return (
+        (!searchVal || emp.firstName.toLowerCase().includes(searchVal) || emp.lastName.toLowerCase().includes(searchVal) || emp.email.toLowerCase().includes(searchVal)) &&
+        (!filterFirst || emp.firstName.toLowerCase().includes(filterFirst)) &&
+        (!filterDept || emp.department.toLowerCase().includes(filterDept)) &&
+        (!filterRole || emp.role.toLowerCase().includes(filterRole))
       );
-    }
-
-    // Filter
-    if (filterFirst) {
-      result = result.filter(emp => emp.firstName.toLowerCase().includes(filterFirst));
-    }
-    if (filterDept) {
-      result = result.filter(emp => emp.department.toLowerCase().includes(filterDept));
-    }
-    if (filterRole) {
-      result = result.filter(emp => emp.role.toLowerCase().includes(filterRole));
-    }
+    });
 
     // Sort
     if (sortBy === "firstName") {
-      result.sort((a, b) => a.firstName.localeCompare(b.firstName));
+      filteredEmployees.sort((a, b) => a.firstName.localeCompare(b.firstName));
     } else if (sortBy === "department") {
-      result.sort((a, b) => a.department.localeCompare(b.department));
+      filteredEmployees.sort((a, b) => a.department.localeCompare(b.department));
     }
 
-    renderEmployees(result);
+    currentPage = 1; // Reset to first page on any change
+    renderEmployees(filteredEmployees);
   }
 
-  // Event Listeners
-  document.getElementById("searchInput").addEventListener("input", applyFilters);
-  document.getElementById("sortSelect").addEventListener("change", applyFilters);
+  // Pagination controls
+  document.getElementById("prevPage").addEventListener("click", () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderEmployees(filteredEmployees);
+    }
+  });
+
+  document.getElementById("nextPage").addEventListener("click", () => {
+    const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderEmployees(filteredEmployees);
+    }
+  });
+
+  itemsPerPageSelect.addEventListener("change", () => {
+    itemsPerPage = parseInt(itemsPerPageSelect.value);
+    currentPage = 1;
+    renderEmployees(filteredEmployees);
+  });
+
+  // Filter panel toggle
+  document.getElementById("filterToggle").addEventListener("click", () => {
+    const panel = document.getElementById("filterPanel");
+    panel.style.display = panel.style.display === "none" ? "block" : "none";
+  });
+
   document.getElementById("applyFilterBtn").addEventListener("click", applyFilters);
   document.getElementById("clearFilterBtn").addEventListener("click", () => {
     document.getElementById("filterFirstName").value = "";
@@ -110,10 +135,8 @@ document.addEventListener("DOMContentLoaded", () => {
     applyFilters();
   });
 
-  document.getElementById("filterToggle").addEventListener("click", () => {
-    const panel = document.getElementById("filterPanel");
-    panel.style.display = panel.style.display === "none" ? "block" : "none";
-  });
+  searchInput.addEventListener("input", applyFilters);
+  sortSelect.addEventListener("change", applyFilters);
 
   // Initial render
   applyFilters();

@@ -62,6 +62,19 @@
   </div>
 
   <div id="pagination-controls"></div>
+<div class="pagination-controls">
+  <label for="itemsPerPage">Show:</label>
+  <select id="itemsPerPage">
+    <option value="5">5</option>
+    <option value="10" selected>10</option>
+    <option value="25">25</option>
+    <option value="50">50</option>
+  </select>
+
+  <button id="prevPage">Previous</button>
+  <span id="pageInfo"></span>
+  <button id="nextPage">Next</button>
+</div>
 
   <script src="/static/js/data.js"></script>
   <script src="/static/js/app.js"></script>
