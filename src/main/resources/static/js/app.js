@@ -1,21 +1,18 @@
-let employees = [...mockEmployees];
+let currentEmployees = [...mockEmployees];
+const perPage = 2;
 let currentPage = 1;
-let itemsPerPage = 10;
 
-document.addEventListener('DOMContentLoaded', () => {
-  renderEmployeeList();
-  setupSearch();
-});
-
-function renderEmployeeList() {
+function displayEmployees(data) {
   const container = document.getElementById('employee-list-container');
-  container.innerHTML = '';
+  container.innerHTML = "";
 
-  const paginatedEmployees = getPaginatedEmployees();
-  paginatedEmployees.forEach(emp => {
-    const card = document.createElement('div');
-    card.className = 'employee-card';
-    card.innerHTML = `
+  const start = (currentPage - 1) * perPage;
+  const paginated = data.slice(start, start + perPage);
+
+  paginated.forEach(emp => {
+    const div = document.createElement("div");
+    div.className = "employee-card";
+    div.innerHTML = `
       <h3>${emp.firstName} ${emp.lastName}</h3>
       <p>Email: ${emp.email}</p>
       <p>Department: ${emp.department}</p>
@@ -23,54 +20,70 @@ function renderEmployeeList() {
       <button onclick="editEmployee(${emp.id})">Edit</button>
       <button onclick="deleteEmployee(${emp.id})">Delete</button>
     `;
-    container.appendChild(card);
+    container.appendChild(div);
   });
 
-  renderPagination();
+  renderPagination(data);
 }
 
-function deleteEmployee(id) {
-  employees = employees.filter(emp => emp.id !== id);
-  renderEmployeeList();
-}
-
-function editEmployee(id) {
-  alert(`Edit form triggered for employee ID ${id}`);
-  // Navigate or show form (handled later)
-}
-
-function getPaginatedEmployees() {
-  const start = (currentPage - 1) * itemsPerPage;
-  return employees.slice(start, start + itemsPerPage);
-}
-
-function renderPagination() {
-  const totalPages = Math.ceil(employees.length / itemsPerPage);
-  const controls = document.getElementById('pagination-controls');
-  controls.innerHTML = '';
+function renderPagination(data) {
+  const totalPages = Math.ceil(data.length / perPage);
+  const pagination = document.getElementById('pagination-controls');
+  pagination.innerHTML = "";
 
   for (let i = 1; i <= totalPages; i++) {
-    const btn = document.createElement('button');
+    const btn = document.createElement("button");
     btn.textContent = i;
-    btn.disabled = (i === currentPage);
     btn.onclick = () => {
       currentPage = i;
-      renderEmployeeList();
+      displayEmployees(currentEmployees);
     };
-    controls.appendChild(btn);
+    pagination.appendChild(btn);
   }
 }
 
-function setupSearch() {
-  const input = document.getElementById('search-input');
-  input.addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase();
-    employees = mockEmployees.filter(emp =>
-      emp.firstName.toLowerCase().includes(query) ||
-      emp.lastName.toLowerCase().includes(query) ||
-      emp.email.toLowerCase().includes(query)
-    );
-    currentPage = 1;
-    renderEmployeeList();
-  });
+function deleteEmployee(id) {
+  currentEmployees = currentEmployees.filter(emp => emp.id !== id);
+  displayEmployees(currentEmployees);
 }
+
+function toggleFilter() {
+  const box = document.getElementById('filterBox');
+  box.style.display = box.style.display === "none" ? "block" : "none";
+}
+
+function applyFilter() {
+  const first = document.getElementById('filterFirstName').value.toLowerCase();
+  const dept = document.getElementById('filterDepartment').value.toLowerCase();
+  const role = document.getElementById('filterRole').value.toLowerCase();
+
+  currentEmployees = mockEmployees.filter(emp =>
+    (!first || emp.firstName.toLowerCase().includes(first)) &&
+    (!dept || emp.department.toLowerCase().includes(dept)) &&
+    (!role || emp.role.toLowerCase().includes(role))
+  );
+
+  currentPage = 1;
+  displayEmployees(currentEmployees);
+}
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  const query = e.target.value.toLowerCase();
+  currentEmployees = mockEmployees.filter(emp =>
+    emp.firstName.toLowerCase().includes(query) ||
+    emp.lastName.toLowerCase().includes(query) ||
+    emp.email.toLowerCase().includes(query)
+  );
+  currentPage = 1;
+  displayEmployees(currentEmployees);
+});
+
+document.getElementById('sortSelect').addEventListener('change', e => {
+  const val = e.target.value;
+  currentEmployees.sort((a, b) => a[val].localeCompare(b[val]));
+  displayEmployees(currentEmployees);
+});
+
+window.onload = () => {
+  displayEmployees(currentEmployees);
+};
